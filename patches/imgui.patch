@@ -12,10 +12,10 @@ index a8b4e38..8499926 100644
  project.xcworkspace
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 new file mode 100644
-index 0000000..bd01154
+index 0000000..6f92212
 --- /dev/null
 +++ b/CMakeLists.txt
-@@ -0,0 +1,90 @@
+@@ -0,0 +1,79 @@
 +cmake_minimum_required(VERSION 3.20)
 +
 +project(imgui LANGUAGES CXX)
@@ -25,19 +25,8 @@ index 0000000..bd01154
 +set(CMAKE_CXX_STANDARD_REQUIRED)
 +
 +# SDL
-+if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-+  if(NOT TARGET SDL3::SDL3)
-+    add_library(SDL3::SDL3 INTERFACE IMPORTED GLOBAL)
-+    target_compile_options(SDL3::SDL3 INTERFACE "-sUSE_SDL=3")
-+    target_link_options(SDL3::SDL3 INTERFACE "-sUSE_SDL=3")
-+  endif()
-+  if(NOT TARGET OpenGL::GL)
-+    add_library(OpenGL::GL INTERFACE IMPORTED GLOBAL)
-+  endif()
-+else()
-+  find_package(OpenGL REQUIRED)
-+  find_package(SDL3 REQUIRED)
-+endif()
++find_package(OpenGL REQUIRED)
++find_package(SDL3 REQUIRED)
 +
 +add_library(imgui STATIC)
 +target_sources(imgui PRIVATE

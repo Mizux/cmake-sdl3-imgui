@@ -9,6 +9,7 @@ RUN pacman -Syu --noconfirm sdl3 sdl3_image
 RUN pacman -Syu --noconfirm nodejs emscripten
 ENV PATH=/usr/lib/emscripten:$PATH
 RUN emcc -v
+RUN emcc -sUSE_SDL=3 /dev/null || true
 
 # Add the library src to our build env
 FROM env AS devel
