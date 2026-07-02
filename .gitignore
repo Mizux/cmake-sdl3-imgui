@@ -38,6 +38,7 @@
 *.exe
 *.out
 *.app
+/imgui.ini
 
 # Build directories
 build/

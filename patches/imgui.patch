@@ -1,0 +1,96 @@
+diff --git a/.gitignore b/.gitignore
+index a8b4e38..8499926 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -35,6 +35,7 @@ JSON/
+ ## Commonly used CMake directories & CMake CPM cache
+ build*/
+ .cache
++*.swp
+ 
+ ## Xcode & macOS artifacts
+ project.xcworkspace
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+new file mode 100644
+index 0000000..e529a7f
+--- /dev/null
++++ b/CMakeLists.txt
+@@ -0,0 +1,78 @@
++cmake_minimum_required(VERSION 3.20)
++
++project(imgui LANGUAGES CXX)
++
++set(CMAKE_DEBUG_POSTFIX d)
++set(CMAKE_CXX_STANDARD 20)
++set(CMAKE_CXX_STANDARD_REQUIRED)
++
++find_package(OpenGL REQUIRED)
++find_package(SDL3 REQUIRED)
++
++add_library(imgui STATIC)
++target_sources(imgui PRIVATE
++  imgui.cpp
++  imgui.h
++  imstb_rectpack.h
++  imstb_textedit.h
++  imstb_truetype.h
++  imgui_demo.cpp
++  imgui_draw.cpp
++  imgui_internal.h
++  imgui_tables.cpp
++  imgui_widgets.cpp
++)
++target_include_directories(imgui PUBLIC
++  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
++  $<INSTALL_INTERFACE:include>)
++add_library(imgui::imgui ALIAS imgui)
++
++set(INSTALL_TARGETS imgui)
++set(INSTALL_HEADERS imgui.h imconfig.h)
++
++foreach(BACKEND opengl3 sdl3 sdlrenderer3)
++  set(NAME imgui_impl_${BACKEND})
++  set(HEADER ${CMAKE_CURRENT_SOURCE_DIR}/backends/${NAME}.h)
++  set(SRC ${CMAKE_CURRENT_SOURCE_DIR}/backends/${NAME}.cpp)
++  add_library(${NAME} STATIC ${SRC} ${HEADER})
++  target_include_directories(${NAME} PUBLIC
++    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/backends>
++    $<INSTALL_INTERFACE:include>)
++  target_link_libraries(${NAME} PUBLIC imgui)
++  add_library(imgui::${NAME} ALIAS ${NAME})
++  LIST(APPEND INSTALL_TARGETS ${NAME})
++  LIST(APPEND INSTALL_HEADERS ${HEADER})
++endforeach()
++
++target_sources(imgui_impl_opengl3 PRIVATE
++  ${CMAKE_CURRENT_SOURCE_DIR}/backends/imgui_impl_opengl3_loader.h)
++target_link_libraries(imgui_impl_opengl3 PRIVATE OpenGL::GL)
++target_link_libraries(imgui_impl_sdl3 PRIVATE SDL3::SDL3)
++target_link_libraries(imgui_impl_sdlrenderer3 PRIVATE SDL3::SDL3)
++
++install(TARGETS ${INSTALL_TARGETS}
++  EXPORT imgui-targets DESTINATION lib)
++install(EXPORT imgui-targets
++  FILE imgui-config.cmake
++  NAMESPACE imgui::
++  DESTINATION lib/cmake/imgui)
++install(FILES ${INSTALL_HEADERS}
++  DESTINATION include)
++
++add_executable(example_sdl3_sdlrenderer3)
++target_sources(example_sdl3_sdlrenderer3 PRIVATE
++  ${CMAKE_CURRENT_SOURCE_DIR}/examples/example_sdl3_sdlrenderer3/main.cpp)
++target_link_libraries(example_sdl3_sdlrenderer3
++  PRIVATE
++  imgui imgui_impl_sdl3 imgui_impl_sdlrenderer3
++  SDL3::SDL3
++)
++
++add_executable(example_sdl3_opengl3)
++target_sources(example_sdl3_opengl3 PRIVATE
++  ${CMAKE_CURRENT_SOURCE_DIR}/examples/example_sdl3_opengl3/main.cpp)
++target_link_libraries(example_sdl3_opengl3
++  PRIVATE
++  imgui imgui_impl_sdl3 imgui_impl_opengl3
++  SDL3::SDL3
++)
