@@ -20,27 +20,18 @@ jobs:
     name: amd64•Windows•CMake(${{matrix.cmake.name}},${{matrix.cmake.config}})
     runs-on: windows-latest
     env:
-      deps_key: amd64_windows_deps_${{matrix.cmake.config}}
+      SCCACHE_GHA_ENABLED: "true"
       CTEST_OUTPUT_ON_FAILURE: 1
     steps:
-      - uses: actions/checkout@v7
       - name: Setup SDL3
         uses: libsdl-org/setup-sdl@main
         id: sdl
         with:
           version: 3-latest
           version-sdl-image: 3-latest
-
-      # CONFIGURING CACHES
-      - name: Cache CMake dependencies
-        uses: actions/cache@v6
-        with:
-          key: ${{env.deps_key}}-${{hashFiles('CMakeLists.txt', 'cmake/**')}}
-          path: |
-            ${{github.workspace}}/build/_deps/*-src
-            ${{github.workspace}}/build/_deps/*-build
-            ${{github.workspace}}/build/_deps/*-subbuild
-
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.10
+      - uses: actions/checkout@v7
       - name: Check CMake
         run: |
           cmake --version
@@ -50,6 +41,8 @@ jobs:
           cmake -S. -Bbuild
           -G "${{matrix.cmake.generator}}"
           -DCMAKE_CONFIGURATION_TYPES=${{matrix.cmake.config}}
+          -DCMAKE_C_COMPILER_LAUNCHER=sccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
           -DCMAKE_INSTALL_PREFIX=install
           -DCMAKE_PREFIX_PATH="${{steps.sdl.outputs.prefix}}"
       - name: Build

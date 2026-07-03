@@ -7,11 +7,6 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
-# Building using the github runner environement directly.
-env:
-  CCACHE_BASEDIR: ${{github.workspace}}
-  CCACHE_DIR: ${{github.workspace}}/.ccache
-
 jobs:
   native:
     strategy:
@@ -24,35 +19,17 @@ jobs:
     name: arm64•MacOS•CMake(${{matrix.cmake.name}})
     runs-on: macos-latest
     env:
-      deps_key: arm64_macos_deps_${{matrix.cmake.name}}
-      ccache_key: arm64_macos_ccache_${{matrix.cmake.name}}
+      SCCACHE_GHA_ENABLED: "true"
     steps:
-      - uses: actions/checkout@v7
       - name: Install Dependencies
         run: brew install ccache
       - name: Install SDL
         run: |
           brew update
           brew install sdl3 sdl3_image
-
-      # Configuring Caches
-      - name: Cache CMake dependencies
-        uses: actions/cache@v6
-        with:
-          key: ${{env.deps_key}}-${{hashFiles('CMakeLists.txt', 'cmake/**')}}
-          path: |
-            ${{github.workspace}}/build/_deps/*-src
-            ${{github.workspace}}/build/_deps/*-build
-            ${{github.workspace}}/build/_deps/*-subbuild
-      - name: Cache CCache
-        uses: actions/cache@v6
-        with:
-          key: ${{env.ccache_key}}-${{github.sha}}
-          restore-keys: |
-            ${{env.ccache_key}}-${{github.sha}}
-            ${{env.ccache_key}}
-          path: ${{env.CCACHE_DIR}}
-
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.10
+      - uses: actions/checkout@v7
       - name: Check CMake
         run: cmake --version
       - name: Configure
@@ -60,6 +37,8 @@ jobs:
           cmake -S. -Bbuild
           -G "${{matrix.cmake.generator}}"
           -DCMAKE_BUILD_TYPE=${{matrix.cmake.config}}
+          -DCMAKE_C_COMPILER_LAUNCHER=sccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
           -DCMAKE_INSTALL_PREFIX=install
           -DCMAKE_PREFIX_PATH="${{steps.sdl.outputs.prefix}}"
       - name: Build
@@ -81,12 +60,6 @@ jobs:
           --config ${{matrix.cmake.config}}
           --target ${{matrix.cmake.install_target}}
           -v
-
-      # Updating Caches
-      - name: CCache stats and cleanup
-        run: |
-          ccache --show-stats
-          ccache --zero-stats
 
   arm64_macos_cmake:
     runs-on: ubuntu-latest
