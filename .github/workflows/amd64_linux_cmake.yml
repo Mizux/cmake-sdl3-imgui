@@ -30,7 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Install Dependencies
-        run: sudo apt install -y ninja-build ccache
+        run: |
+          sudo apt update -y
+          sudo apt install -y ninja-build libgl-dev ccache
       - name: Setup SDL3
         uses: libsdl-org/setup-sdl@main
         id: sdl
