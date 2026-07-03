@@ -55,17 +55,8 @@ help:
 	@echo
 	@echo -e "\tWith ${BOLD}<platform>${RESET}:"
 	@echo -e "\t\t${BOLD}amd64${RESET}: linux/amd64 (x86_64)"
-	@echo -e "\t\t${BOLD}386${RESET}: linux/386 (x86)"
-	@echo -e "\t\t${BOLD}arm${RESET}: linux/arm (armv7)"
 	@echo -e "\t\t${BOLD}arm64${RESET}: linux/arm64 (aarch64, arm64v8)"
-	@echo -e "\t\t${BOLD}mips${RESET}: linux/mips (mips 32bits)"
-	@echo -e "\t\t${BOLD}mipsle${RESET}: linux/mipsle (mips 32bits Little Endian)"
-	@echo -e "\t\t${BOLD}mips64${RESET}: linux/mips64 (mips 64bits)"
-	@echo -e "\t\t${BOLD}mips64le${RESET}: linux/mips64le (mips 64bits Little Endian)"
-	@echo -e "\t\t${BOLD}ppc64${RESET}: linux/ppc64 (PowerPC 64Bits)"
-	@echo -e "\t\t${BOLD}ppc64le${RESET}: linux/ppc64le (PowerPC 64Bits Little Endian)"
 	@echo -e "\t\t${BOLD}riscv64${RESET}: linux/riscv64 (RISC-V 64bits)"
-	@echo -e "\t\t${BOLD}s390x${RESET}: linux/s390x (IBM System/390x)"
 	@echo -e "\te.g. 'make amd64_ubuntu_test'"
 	@echo -e "\tDocker image unavailable: arm64_archlinux"
 	@echo
@@ -192,13 +183,7 @@ clean_all: $(addprefix clean_all_, $(STAGES))
 ##############
 # ref: https://go.dev/doc/install/source#environment
 # ref: https://github.com/containerd/containerd/blob/269548fa27e0089a8b8278fc4fc781d7f65a939b/platforms/platforms.go#L80-L94
-PLATFORMS := \
- 386 amd64 \
- arm arm64 \
- mips mipsle mips64 mips64le \
- ppc64 ppc64le \
- riscv64 \
- s390x
+PLATFORMS := amd64 arm64 riscv64
 
 define make-platform-stage-target =
 #$$(info PLATFORM: '$1' STAGE: '$2')
