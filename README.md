@@ -3,7 +3,6 @@ Github-CI:<br>
 [![Build Status][amd64_macos_status]][amd64_macos_link]
 [![Build Status][arm64_macos_status]][arm64_macos_link]
 [![Build Status][amd64_windows_status]][amd64_windows_link]<br>
-
 [![Build Status][amd64_docker_status]][amd64_docker_link]<br>
 
 [amd64_linux_status]: ./../../actions/workflows/amd64_linux_cmake.yml/badge.svg
