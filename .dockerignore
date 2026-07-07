@@ -31,6 +31,9 @@ build*/
 cache/
 compile_commands.json
 export/
+dist/
+
+imgui.ini
 
 # Editors
 .kdev4/
