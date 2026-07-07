@@ -11,17 +11,14 @@ CONTRIBUTING.md
 CONTRIBUTORS
 LICENSE
 README.md
-docs
+docs/
 
 # CMake
 cmake/docs
 cmake/README.md
 
 # CI
-ci/Makefile
-ci/docker
-ci/docs
-ci/cache
+ci/
 
 # Native build
 .cache/
