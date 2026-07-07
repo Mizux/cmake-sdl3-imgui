@@ -116,7 +116,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME "${PROJECT_NAME}"
+    OUTPUT_NAME "index"
     SUFFIX ".html"
   )
   target_link_options(${PROJECT_NAME} PRIVATE

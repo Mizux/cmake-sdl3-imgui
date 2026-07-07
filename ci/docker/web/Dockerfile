@@ -21,7 +21,7 @@ ENV CMAKE_BUILD_PARALLEL_LEVEL=${CMAKE_BUILD_PARALLEL_LEVEL:-4}
 
 FROM devel AS build
 RUN cmake --version
-RUN emcmake cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=make
+RUN emcmake cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 RUN cmake --build build --target all -v
 #RUN cmake --build build --target install -v
 
@@ -30,7 +30,7 @@ FROM build AS test
 RUN cd build && CTEST_OUTPUT_ON_FAILURE=1 ctest -V
 
 FROM scratch AS export
-COPY --from=build /home/project/build/bin/sdlimgui.js /
-COPY --from=build /home/project/build/bin/sdlimgui.wasm /
-COPY --from=build /home/project/build/bin/sdlimgui.html /
+COPY --from=build /home/project/build/bin/index.js /
+COPY --from=build /home/project/build/bin/index.wasm /
+COPY --from=build /home/project/build/bin/index.html /
 
