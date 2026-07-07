@@ -68,6 +68,7 @@ help:
 	@echo -e "\t\t${BOLD}devel${RESET}"
 	@echo -e "\t\t${BOLD}build${RESET}"
 	@echo -e "\t\t${BOLD}test${RESET}"
+	@echo -e "\t\t${BOLD}export${RESET}"
 	@echo -e "\te.g. 'make web_build'"
 	@echo
 	@echo -e "\tGlobal targets."
@@ -140,7 +141,11 @@ targets_$1 := $(addsuffix _$1, $(DISTROS))
 all_$1: $$(targets_$1)
 $$(targets_$1): %_$1: docker/%/Dockerfile
 	#@docker image rm -f ${IMAGE}:$$*_$1 2>/dev/null
-	${DOCKER_BUILD_CMD} --target=$1 --tag ${IMAGE}:$$*_$1 -f $$< ..
+	${DOCKER_BUILD_CMD} \
+ --tag ${IMAGE}:$$*_$1 \
+ --target=$1 \
+ -f $$< \
+ ..
 
 #$$(info Create targets: save_all_$1 $(addprefix save_, $(addsuffix _$1, $(DISTROS))) (debug).)
 save_targets_$1 := $(addprefix save_, $(addsuffix _$1, $(DISTROS)))
@@ -156,7 +161,10 @@ cache/%/docker_$1.tar: %_$1
 sh_targets_$1 := $(addprefix sh_, $(addsuffix _$1, $(DISTROS)))
 .PHONY: $$(sh_targets_$1)
 $$(sh_targets_$1): sh_%_$1: %_$1
-	${DOCKER_RUN_CMD} -it --name ${PROJECT}_$$*_$1 ${IMAGE}:$$*_$1
+	${DOCKER_RUN_CMD} \
+ --name ${PROJECT}_$$*_$1 \
+ -it \
+ ${IMAGE}:$$*_$1
 
 #$$(info Create targets: clean_all_$1 $(addprefix clean_, $(addsuffix _$1, $(DISTROS))).)
 clean_targets_$1 := $(addprefix clean_, $(addsuffix _$1, $(DISTROS)))
@@ -189,7 +197,11 @@ targets_$1_$2 := $(addprefix $1_, $(addsuffix _$2, $(DISTROS)))
 $1_all_$2: $$(targets_$1_$2)
 $$(targets_$1_$2): $1_%_$2: docker/%/Dockerfile
 	#@docker image rm -f ${IMAGE}:$1_$$*_$2 2>/dev/null
-	${DOCKER_BUILDX_CMD} --platform linux/$1 --target=$2 --tag ${IMAGE}:$1_$$*_$2 -f $$< ..
+	${DOCKER_BUILDX_CMD} --platform linux/$1 \
+ --tag ${IMAGE}:$1_$$*_$2 \
+ --target=$2 \
+ -f $$< \
+ ..
 
 #$$(info Create save targets: save_$1_all_$2 $(addprefix save_$1_, $(addsuffix _$2, $(DISTROS))) (debug).)
 save_targets_$1_$2 := $(addprefix save_$1_, $(addsuffix _$2, $(DISTROS)))
@@ -205,7 +217,10 @@ cache/$1/%/docker_$2.tar: $1_%_$2
 sh_targets_$1_$2 := $(addprefix sh_$1_, $(addsuffix _$2, $(DISTROS)))
 .PHONY: $$(sh_targets_$1_$2)
 $$(sh_targets_$1_$2): sh_$1_%_$2: $1_%_$2
-	${DOCKER_RUN_CMD} --platform linux/$1 -it --name ${IMAGE}_$1_$$*_$2 ${IMAGE}:$1_$$*_$2
+	${DOCKER_RUN_CMD} --platform linux/$1 \
+ --name ${IMAGE}_$1_$$*_$2 \
+ -it \
+ ${IMAGE}:$1_$$*_$2
 
 #$$(info Create targets: clean_$1_all_$2 $(addprefix clean_$1_, $(addsuffix _$2, $(DISTROS))).)
 clean_targets_$1_$2 := $(addprefix clean_$1_, $(addsuffix _$2, $(DISTROS)))
@@ -236,7 +251,7 @@ clean_platforms: $(addprefix clean_, $(PLATFORMS))
 #########
 ## WEB ##
 #########
-WEB_STAGES := env devel build test
+WEB_STAGES := env devel build test export
 
 define make-web-stage-target =
 #$$(info STAGE: $1)
@@ -244,7 +259,11 @@ define make-web-stage-target =
 .PHONY: web_$1
 web_$1: docker/web/Dockerfile
 	#@docker image rm -f ${IMAGE}:web_$1 2>/dev/null
-	${DOCKER_BUILD_CMD} --target=$1 --tag ${IMAGE}:web_$1 -f $$< ..
+	${DOCKER_BUILDX_CMD} \
+ --tag ${IMAGE}:web_$1 \
+ --target=$1 \
+ -f $$< \
+ ..
 
 #$$(info Create target: save_web_$1 (debug).)
 .PHONY: save_web_$1
@@ -257,7 +276,10 @@ cache/web/docker_$1.tar: web_$1
 #$$(info Create target: sh_web_$1 (debug).)
 .PHONY: sh_web_$1
 sh_web_$1: web_$1
-	${DOCKER_RUN_CMD} -it --name ${PROJECT}_web_$1 ${IMAGE}:web_$1
+	${DOCKER_RUN_CMD} \
+ --name ${PROJECT}_web_$1 \
+ -it \
+ ${IMAGE}:web_$1
 
 #$$(info Create target: clean_web_$1.)
 .PHONY: clean_web_$1
@@ -268,10 +290,21 @@ endef
 
 $(foreach stage,$(WEB_STAGES),$(eval $(call make-web-stage-target,$(stage))))
 
+.PHONY: web_export
+web_export: docker/web/Dockerfile web_build
+	#@docker image rm -f ${IMAGE}:web_export 2>/dev/null
+	${DOCKER_BUILDX_CMD} \
+ --tag ${IMAGE}:web_export \
+ --output=type=local,dest=../dist \
+ --target=export \
+ -f $< \
+ ..
+
 ## MERGE ##
 .PHONY: clean_web
 clean_web: $(addprefix clean_web_, $(WEB_STAGES))
 	rm -f cache/web
+	rm -rf ../dist
 
 ###########
 ## CLEAN ##

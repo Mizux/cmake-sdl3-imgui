@@ -28,3 +28,9 @@ RUN cmake --build build --target all -v
 FROM build AS test
 #RUN CTEST_OUTPUT_ON_FAILURE=1 cmake --build build --target test
 RUN cd build && CTEST_OUTPUT_ON_FAILURE=1 ctest -V
+
+FROM scratch AS export
+COPY --from=build /home/project/build/bin/sdlimgui.js /
+COPY --from=build /home/project/build/bin/sdlimgui.wasm /
+COPY --from=build /home/project/build/bin/sdlimgui.html /
+
