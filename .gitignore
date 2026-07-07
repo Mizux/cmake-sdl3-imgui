@@ -44,6 +44,7 @@
 build/
 Build/
 build-*/
+build_*/
 dist/
 
 # CMake generated files

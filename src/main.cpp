@@ -1,5 +1,5 @@
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
@@ -169,6 +169,8 @@ int main(int, char**)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #endif
 #endif
+  std::cout << "IMGUI IMPL: " << glsl_version << std::endl;
+
   // Create window with graphics context
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
