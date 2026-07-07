@@ -114,4 +114,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   imgui::imgui_impl_sdl3
   imgui::imgui_impl_opengl3
 )
+if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+    OUTPUT_NAME "${PROJECT_NAME}"
+    SUFFIX ".html"
+  )
+  target_link_options(${PROJECT_NAME} PRIVATE
+    "--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shell.html"
+  )
+endif()
 add_executable(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})

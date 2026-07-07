@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My SDL3 WebAssemby App</title>
+    <style>
+        body {
+            background-color: #222;
+            color: white;
+            text-align: center;
+            font-family: sans-serif;
+        }
+        /* The canvas MUST match what Emscripten looks for */
+        canvas.emscripten {
+            border: 0px none;
+            background-color: black;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>My SDL3 Application</h1>
+    <!-- Emscripten will automatically route the SDL3 rendering to this canvas -->
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    <!-- This magic token tells Emscripten where to inject its loading glue code -->
+    {{{ SCRIPT }}}
+    <script type='text/javascript'>
+      var Module = {
+        preRun: [],
+        postRun: [],
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          // Optional: handle context lost events
+          canvas.addEventListener("webglcontextlost", function(e) {
+              alert('WebGL context lost. You will need to reload the page.');
+              e.preventDefault();
+          }, false);
+          return canvas;
+        })()
+      };
+    </script>
+</body>
+</html>
