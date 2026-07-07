@@ -1,0 +1,7 @@
+# CMake configuration file
+
+include(CMakeFindDependencyMacro)
+#find_dependency(opengl REQUIRED NO_MODULE)
+#find_dependency(sdl3 REQUIRED NO_MODULE)
+
+include("${CMAKE_CURRENT_LIST_DIR}/sdlimguiTargets.cmake")

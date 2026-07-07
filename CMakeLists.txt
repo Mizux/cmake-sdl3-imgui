@@ -6,6 +6,7 @@ message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 #message(STATUS "major: ${PROJECT_VERSION_MAJOR}")
 #message(STATUS "minor: ${PROJECT_VERSION_MINOR}")
 #message(STATUS "patch: ${PROJECT_VERSION_PATCH}")
+set(PROJECT_NAMESPACE sdlimgui)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -128,4 +129,37 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     "--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/src/shell.html"
   )
 endif()
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}Targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 add_executable(${PROJECT_NAMESPACE}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
+###################
+## CMake Install ##
+###################
+include(GNUInstallDirs)
+#include(GenerateExportHeader)
+#GENERATE_EXPORT_HEADER(${PROJECT_NAME})
+#install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.h
+#  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(EXPORT ${PROJECT_NAME}Targets
+  NAMESPACE ${PROJECT_NAMESPACE}::
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+  COMPONENT Devel)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(cmake/${PROJECT_NAME}Config.cmake.in
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+write_basic_package_version_file(
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  COMPATIBILITY SameMajorVersion)
+install(
+  FILES
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  COMPONENT Devel)
